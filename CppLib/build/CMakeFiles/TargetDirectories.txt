@@ -1,0 +1,3 @@
+/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles/midi_render_backend.dir
+/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles/edit_cache.dir
+/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles/rebuild_cache.dir

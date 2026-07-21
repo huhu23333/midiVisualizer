@@ -1,0 +1,55 @@
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdint.h>
+
+// Opaque handle to MidiPianoRender
+typedef void* MidiRenderHandle;
+
+// Create a MidiPianoRender instance
+// track_layer_idx: -1 for None (default light bar color), 0..12 for track color
+// render_note: 1 to enable note rendering, 0 to disable
+MidiRenderHandle midi_render_create(int track_layer_idx, int render_note);
+
+// Destroy a MidiPianoRender instance
+void midi_render_destroy(MidiRenderHandle handle);
+
+// Set random seed
+void midi_render_set_seed(unsigned int seed);
+
+// Get white_key_height (needed by Python to compute note_distance_dt)
+int midi_render_get_white_key_height(MidiRenderHandle handle);
+
+// Render frames
+// Parameters:
+//   handle: MidiPianoRender instance
+//   bpm: beats per minute (float)
+//   notes_data: packed note data (see Python wrapper for encoding)
+//   notes_count: number of notes with data
+//   low_layers_data: optional pre-rendered bottom layers (may be NULL)
+//   low_layers_count: number of low layer frames
+//   low_layer_rows, low_layer_cols: dimensions of each low layer frame
+//   out_frame_data: output buffer (pre-allocated, will be filled)
+//   out_frame_count: number of frames rendered (output)
+// Returns: pointer to array of frame data blocks (caller must free each with free())
+// Frame data: rows * cols * 3 bytes (BGR), total bytes = out_frame_count * rows * cols * 3
+uint8_t* midi_render_render_frames(
+    MidiRenderHandle handle,
+    float bpm,
+    const int32_t* notes_data,
+    int notes_count,
+    const uint8_t* low_layers_data,
+    int low_layers_count,
+    int low_layer_cols,
+    int low_layer_rows,
+    int* out_frame_count,
+    int* out_frame_cols,
+    int* out_frame_rows
+);
+
+#ifdef __cplusplus
+}
+#endif
