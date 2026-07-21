@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from typing import List, Tuple, Set, Iterable
+import math
 
 def generate_round_rect_contour(x1, y1, x2, y2, radius,
                                 top_border, bottom_border, left_border=False, right_border=False):
@@ -190,17 +191,7 @@ def extract_colors_by_indices(
     return [colors[i] for i in sorted_indices]
 
 
-def overlay_colors(colors: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
-    """
-    叠加所有颜色（饱和加法），即逐通道累加并截断至 0~255。
-
-    参数:
-        colors: 颜色列表，每个元素为 (b, g, r) 三元组。
-
-    返回:
-        叠加后的颜色 (b, g, r)，各分量在 0~255 之间。
-        若列表为空，返回 (0, 0, 0)。
-    """
+def mix_color(colors: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
     if not colors:
         return (0, 0, 0)
 
@@ -210,8 +201,49 @@ def overlay_colors(colors: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
         total_g += g
         total_r += r
 
-    # 饱和截断
-    return (min(total_b, 255), min(total_g, 255), min(total_r, 255))
+    max_part = max(total_b, total_g, total_r)
+    if max_part == 0:
+        return (0, 0, 0)
+    out_v = min(max_part, 255)
 
-def border_color(mix_color):
-    return tuple(map(int, (mix_color[0] * 0.5, mix_color[1] * 0.5, mix_color[2] * 0.5)))
+    r = total_r / max_part
+    g = total_g / max_part
+    b = total_b / max_part
+
+    # 排序 (值, 索引)  索引 0:B, 1:G, 2:R
+    pairs = [(b, 0), (g, 1), (r, 2)]
+    pairs.sort(key=lambda x: x[0])          # 升序
+
+    min_val, min_idx = pairs[0]
+    mid_val, mid_idx = pairs[1]
+    max_val, max_idx = pairs[2]
+
+    v = max_val
+    min_c = min_val
+    mid_c = mid_val
+
+    S = (v - min_c) / v if v != 0 else 0
+    if S == 0:
+        return (out_v, out_v, out_v)
+
+    a = 2.34 * (math.sqrt(len(colors)) - 1)
+    S_new = (1 + a) * S / (1 + a * S)
+
+    min_new = v * (1 - S_new)
+    mid_new = v * (1 - S_new) + (mid_c - min_c) * (S_new / S)
+
+    # 直接按索引填回，不做任何相等判断
+    new_vals = [0, 0, 0]
+    new_vals[min_idx] = min_new
+    new_vals[mid_idx] = mid_new
+    new_vals[max_idx] = v
+
+    return (
+        min(int(new_vals[0] * out_v), out_v),
+        min(int(new_vals[1] * out_v), out_v),
+        min(int(new_vals[2] * out_v), out_v)
+    )
+
+
+def border_color(mixed_color):
+    return tuple(map(int, (mixed_color[0] * 0.5, mixed_color[1] * 0.5, mixed_color[2] * 0.5)))

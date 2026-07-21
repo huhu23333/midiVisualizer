@@ -6,8 +6,8 @@ class PianoRender:
         self.screen_size = screen_size
         self.max_note = max_note
 
-        self.white_key_height = 80
-        self.black_key_height = 48
+        self.white_key_height = int(screen_size[1] * 80 / 720)
+        self.black_key_height = int(screen_size[1] * 48 / 720)
         self.line_width_piano = 1
         self.line_color_piano = (0,0,0)
         self.piano_white_note_color = (240, 240, 240)

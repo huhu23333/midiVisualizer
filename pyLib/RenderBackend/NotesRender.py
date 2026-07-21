@@ -6,7 +6,7 @@ sys.path.append(base_path)
 
 import numpy as np
 import cv2
-from CvFuncs import draw_rounded_rect, extract_colors_by_indices, overlay_colors, border_color
+from CvFuncs import draw_rounded_rect, extract_colors_by_indices, mix_color, border_color
 
 
 
@@ -57,33 +57,33 @@ class NotesRender:
 
                 if continue_set:
                     color_list = extract_colors_by_indices(color_map, continue_set)
-                    mix_color = border_color(overlay_colors(color_list))
+                    mixed_color = border_color(mix_color(color_list))
                     draw_rounded_rect(off_tmp[ : end_draw_row+this_off_region_pix-1], (self.shrink, None), (x_right-x_left-self.shrink, None), 
-                                            self.radius, self.border_thickness, mix_color, color_list)
+                                            self.radius, self.border_thickness, mixed_color, color_list)
                 else:
                     pass
                     # cv2.rectangle(off_tmp, (0, 0), (x_right-x_left, end_draw_row+this_off_region_pix-1), (0, 0, 0), -1)
 
                 color_list = extract_colors_by_indices(color_map, last_set)
-                mix_color = border_color(overlay_colors(color_list))
+                mixed_color = border_color(mix_color(color_list))
                 draw_rounded_rect(off_tmp, (self.shrink, end_draw_row+this_gap), (x_right-x_left-self.shrink, None), 
-                                          self.radius, self.border_thickness, mix_color, color_list)
+                                          self.radius, self.border_thickness, mixed_color, color_list)
                 
                 in_tmp_img[ : end_draw_row+this_off_region_pix, x_left : x_right] = off_tmp[ : end_draw_row+this_off_region_pix]
                 
                 self.last_update_pix[note] = 0
             if on_set:
                 color_list = extract_colors_by_indices(color_map, playing_set)
-                mix_color = border_color(overlay_colors(color_list))
+                mixed_color = border_color(mix_color(color_list))
                 draw_rounded_rect(in_tmp_img, (x_left+self.shrink, None), (x_right-self.shrink, end_draw_row), 
-                                          self.radius, self.border_thickness, mix_color, color_list)
+                                          self.radius, self.border_thickness, mixed_color, color_list)
                 self.last_on_border_pix[note] = 0
                 self.last_update_pix[note] = 0
                 
             if (self.last_update_pix[note] >= start_draw_row):
                 if continue_set:
                     color_list = extract_colors_by_indices(color_map, continue_set)
-                    mix_color = border_color(overlay_colors(color_list))
+                    mixed_color = border_color(mix_color(color_list))
                     draw_rounded_rect(in_tmp_img[ : end_draw_row], (x_left+self.shrink, None), (x_right-self.shrink, None), 
-                                            self.radius, self.border_thickness, mix_color, color_list)
+                                            self.radius, self.border_thickness, mixed_color, color_list)
                 self.last_update_pix[note] = 0
