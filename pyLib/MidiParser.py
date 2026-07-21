@@ -2,7 +2,7 @@ import mido
 from typing import Dict, List, Set, Iterator, Tuple
 
 class MidiParser:
-    def __init__(self, midi_path: str):
+    def __init__(self, midi_path: str, extra_ticks = 0):
         """
         解析 MIDI 文件，提取音符事件和 tempo 事件。
         """

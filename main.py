@@ -46,7 +46,7 @@ def shift_frames(frames):
     return result
 
 def main():
-    mp = MidiParser(midi_path("Asterlore.mid"))
+    mp = MidiParser(midi_path("Asterlore.mid"), int(10 / 0.02))
     tracks_info = mp.get_tracks_info()
     print(tracks_info)
     track_idx_list = list(range(1, max(tracks_info.keys())+1 ))

@@ -247,3 +247,38 @@ def mix_color(colors: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
 
 def border_color(mixed_color):
     return tuple(map(int, (mixed_color[0] * 0.5, mixed_color[1] * 0.5, mixed_color[2] * 0.5)))
+
+
+def tone_map_hdr(img: np.ndarray) -> np.ndarray:
+    """
+    对 HDR 浮点图像进行简单色调映射（色度归一化 + 亮度截断）
+    
+    Args:
+        img: np.float32 类型，形状为 (H, W, 3)，BGR 或 RGB 顺序均可，值域任意非负
+    
+    Returns:
+        np.float32 类型，形状相同，处理后最大像素值 ≤ 255
+    """
+    # 1. 计算每个像素三个通道的最大值 a，保持维度以便广播 (H, W, 1)
+    a = np.max(img, axis=2, keepdims=True)
+    
+    # 2. 处理除零：将 a=0 的位置临时置为 1，方便计算缩放因子
+    #    因为当 a=0 时，img 必为 0，最终结果也必为 0，所以这里置 1 不影响最终乘法结果
+    safe_a = np.where(a == 0, 1.0, a)
+    
+    # 3. 计算缩放因子 scale = min(a, 255) / a
+    #    - 当 a <= 255 时，scale = 1.0，图片保持原样
+    #    - 当 a > 255 时，scale = 255.0 / a，将该像素的最大通道压到 255，其余通道等比缩放
+    scale = np.minimum(a, 255.0) / safe_a
+    
+    # 4. 原图乘以缩放因子
+    result = img * scale
+    
+    return result.astype(np.float32)
+
+def add_glow_effect(image, glow_illuminant, gaussian_size=63, alpha=1.5, sigma=0):
+    blurred_glow = cv2.GaussianBlur(glow_illuminant, (gaussian_size, gaussian_size), sigmaX=sigma, sigmaY=sigma).astype(np.float32)
+    image_float = image.astype(np.float32) + blurred_glow * alpha
+    image_float = tone_map_hdr(image_float)
+    np.clip(image_float, 0, 255, out=image_float)
+    image[:] = image_float.astype(np.uint8)
