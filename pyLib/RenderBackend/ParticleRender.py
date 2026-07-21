@@ -6,9 +6,9 @@ import random
 def set_seed(seed):
     random.seed(seed)
 
-particle_speed = 23
-particle_spread = 0.5
-particle_decay = 0.93
+particle_speed = 12
+particle_spread = 0.4
+particle_decay = 0.95
 particle_size = 2
 particle_amount = 7
 particle_masks_number = 3

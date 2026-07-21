@@ -15,7 +15,7 @@ max_note = 128
 note_shift = 0
 note_in_tmp_height = 200
 note_out_tmp_height = 2000
-note_speed = 500.0
+note_speed = 400.0
 
 screen_size = (1920, 1080)
 fps = 60.0
