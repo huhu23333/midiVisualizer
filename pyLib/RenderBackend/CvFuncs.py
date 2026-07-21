@@ -226,7 +226,7 @@ def mix_color(colors: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
     if S == 0:
         return (out_v, out_v, out_v)
 
-    a = 2.34 * (math.sqrt(len(colors)) - 1)
+    a = 2.0 * (len(colors) - 1) # 2.34 * (math.sqrt(len(colors)) - 1)
     S_new = (1 + a) * S / (1 + a * S)
 
     min_new = v * (1 - S_new)

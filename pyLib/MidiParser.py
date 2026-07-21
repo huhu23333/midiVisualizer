@@ -142,3 +142,50 @@ class MidiParser:
         返回所有轨道的索引及对应的轨道名称。
         """
         return {i: self.mid.tracks[i].name for i in range(len(self.mid.tracks))}
+
+
+class StateProcessor:
+    def __init__(self, track_idx_list, shift_rule = {}):
+        self.track_idx_list = track_idx_list
+        self.shift_rule = shift_rule
+
+    def shift_and_split_state(self, state):
+        notes = state['notes']
+        bpm = state['bpm']
+
+        new_notes = {n : {'on': [], 'playing': [], 'off': []} for n in notes.keys()}
+        for n in notes.keys():
+            for event_type in ['on', 'playing', 'off']:
+                tracks = notes[n][event_type]
+                for track_idx in tracks:
+                    if track_idx in self.shift_rule:
+                        shifted_n = n + self.shift_rule[track_idx]
+                        if shifted_n in new_notes:
+                            new_notes[shifted_n][event_type].append(track_idx)
+                    else:
+                        new_notes[n][event_type].append(track_idx)
+            
+        for n in new_notes.keys():
+            for event_type in ['on', 'playing', 'off']:
+                new_notes[n][event_type].sort()
+
+        split_notes = {}
+
+        for track_idx in self.track_idx_list:
+            split_notes[track_idx] = {n : {'on': [], 'playing': [], 'off': []} for n in new_notes.keys()}
+            for n in new_notes.keys():
+                for event_type in ['on', 'playing', 'off']:
+                    if track_idx in new_notes[n][event_type]:
+                        split_notes[track_idx][n][event_type].append(track_idx)
+        
+        return {
+                'notes': new_notes,
+                'bpm': bpm
+            }, {
+                track_idx: {
+                    'notes': split_notes[track_idx],
+                    'bpm': bpm
+                } for track_idx in self.track_idx_list
+            }
+
+

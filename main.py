@@ -6,7 +6,7 @@ sys.path.append(base_path)
 
 import time
 import cv2
-from pyLib.MidiParser import MidiParser
+from pyLib.MidiParser import MidiParser, StateProcessor
 from pyLib.RenderBackend.Render import MidiPianoRender
 
 midi_dir_path = os.path.join(base_path, "midi")
@@ -29,8 +29,12 @@ def test():
 def main():
     mp = MidiParser(midi_path("Asterlore.mid"))
     mpr = MidiPianoRender()
+    tracks_info = mp.get_tracks_info()
+    print(tracks_info)
+    sp = StateProcessor(list(range(1, max(tracks_info.keys())+1 )), {})
     for state in mp.iter_ticks():
-        frames = mpr.render_frames(state)
+        shifted_state, split_state = sp.shift_and_split_state(state)
+        frames = mpr.render_frames(shifted_state)
         for f in frames:
             cv2.imshow("1", cv2.resize(f, (1280, 720)))
             cv2.waitKey(1)
