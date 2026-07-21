@@ -8,7 +8,7 @@ import time
 import cv2
 import numpy as np
 from pyLib.MidiParser import MidiParser, StateProcessor
-from pyLib.RenderBackend.Render import MidiPianoRender
+from pyLib.RenderBackend.Render_cpp import MidiPianoRender
 
 midi_dir_path = os.path.join(base_path, "midi")
 def midi_path(midi_name):
