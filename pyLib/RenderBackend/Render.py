@@ -30,22 +30,26 @@ color_map = [None,
 
 
 class MidiPianoRender:
-    def __init__(self, track_layer_idx = None):
+    def __init__(self, track_layer_idx = None, render_note = True):
 
         self.pr = PianoRender.PianoRender(screen_size, max_note, color_map[track_layer_idx] if track_layer_idx else None)
         self.nr  = NotesRender.NotesRender(self.pr.get_side_x)
+        if render_note:
+
+            self.note_in_tmp = np.zeros((note_in_tmp_height, screen_size[0], 3), np.uint8)
+            self.note_out_tmp = np.zeros((note_out_tmp_height, screen_size[0], 3), np.uint8)
+            self.note_in_tmp_mask = np.zeros((note_in_tmp_height, screen_size[0]), np.uint8)
+            self.note_out_tmp_mask = np.zeros((note_out_tmp_height, screen_size[0]), np.uint8)
+
+            self.last_move_note_tmp_pix_residual = 0.0
+
+        self.note_distance_dt = (self.nr.keep_for_out_pix + note_out_tmp_height - self.pr.white_key_height) / note_speed
+
+        self.render_note = render_note
 
         self.tick_time_count = 0.0
         self.frame_count = 0
 
-        self.note_in_tmp = np.zeros((note_in_tmp_height, screen_size[0], 3), np.uint8)
-        self.note_out_tmp = np.zeros((note_out_tmp_height, screen_size[0], 3), np.uint8)
-        self.note_in_tmp_mask = np.zeros((note_in_tmp_height, screen_size[0]), np.uint8)
-        self.note_out_tmp_mask = np.zeros((note_out_tmp_height, screen_size[0]), np.uint8)
-
-        self.last_move_note_tmp_pix_residual = 0.0
-
-        self.note_distance_dt = (self.nr.keep_for_out_pix + note_out_tmp_height - self.pr.white_key_height) / note_speed
         self.piano_delay_list = [(0.0, [False for _ in range(max_note)], [{'on':[],'playing':[],'off':[]} for _ in range(max_note)])]
 
     def render_frames(self, state, low_layers = None):
@@ -62,19 +66,21 @@ class MidiPianoRender:
         ]
         self.piano_delay_list.append((self.tick_time_count + self.note_distance_dt, nsl_for_delay, shifted_notes))
 
-        target_pix = tick_dt * note_speed + self.last_move_note_tmp_pix_residual
-        step_pix = round(target_pix)
-        self.last_move_note_tmp_pix_residual = target_pix - step_pix
-        self.nr.update_in_temp(self.note_in_tmp, self.note_in_tmp_mask, step_pix, shifted_notes, color_map)
-        shift_and_fill_inplace(self.note_out_tmp, self.note_in_tmp, step_pix)
-        shift_and_fill_inplace(self.note_out_tmp_mask, self.note_in_tmp_mask, step_pix)
+        if self.render_note:
+            target_pix = tick_dt * note_speed + self.last_move_note_tmp_pix_residual
+            step_pix = round(target_pix)
+            self.last_move_note_tmp_pix_residual = target_pix - step_pix
+            self.nr.update_in_temp(self.note_in_tmp, self.note_in_tmp_mask, step_pix, shifted_notes, color_map)
+            shift_and_fill_inplace(self.note_out_tmp, self.note_in_tmp, step_pix)
+            shift_and_fill_inplace(self.note_out_tmp_mask, self.note_in_tmp_mask, step_pix)
 
         result = []
         self.tick_time_count += tick_dt
         frame_idx = 0
         while self.frame_count * frame_dt <= self.tick_time_count:
-            over_dt = self.tick_time_count - self.frame_count * frame_dt
-            over_pix = round(note_speed * over_dt)
+            if self.render_note:
+                over_dt = self.tick_time_count - self.frame_count * frame_dt
+                over_pix = round(note_speed * over_dt)
 
             frame = np.zeros((screen_size[1], screen_size[0], 3), np.uint8)
             if low_layers is not None:
@@ -82,11 +88,12 @@ class MidiPianoRender:
                 assert frame.shape == low_layers[frame_idx].shape
                 frame = low_layers[frame_idx]
 
-            tmp_note_frame = np.zeros_like(frame)
-            tmp_note_frame[:screen_size[1]-over_pix] = self.note_out_tmp[self.note_out_tmp.shape[0]-(screen_size[1]-over_pix):]
-            note_mask = np.zeros(frame.shape[:2], np.uint8)
-            note_mask[:screen_size[1]-over_pix] = self.note_out_tmp_mask[self.note_out_tmp.shape[0]-(screen_size[1]-over_pix):]
-            cv2.copyTo(tmp_note_frame, note_mask, frame)
+            if self.render_note:
+                tmp_note_frame = np.zeros_like(frame)
+                tmp_note_frame[:screen_size[1]-over_pix] = self.note_out_tmp[self.note_out_tmp.shape[0]-(screen_size[1]-over_pix):]
+                note_mask = np.zeros(frame.shape[:2], np.uint8)
+                note_mask[:screen_size[1]-over_pix] = self.note_out_tmp_mask[self.note_out_tmp.shape[0]-(screen_size[1]-over_pix):]
+                cv2.copyTo(tmp_note_frame, note_mask, frame)
 
             glow_illuminant = np.zeros((screen_size[1], screen_size[0], 3), np.uint8)
             while len(self.piano_delay_list) >= 2 and (self.frame_count * frame_dt >= self.piano_delay_list[1][0]):
@@ -103,11 +110,5 @@ class MidiPianoRender:
 
             self.frame_count += 1
             frame_idx += 1
-
-        # cv2.imshow("1", piano_frame)
-        # cv2.imshow("2", glow_illuminant)
-        # cv2.waitKey(1)
-
-        cv2.imshow("2", self.note_in_tmp)
 
         return result

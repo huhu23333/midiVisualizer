@@ -52,8 +52,8 @@ def main():
     track_idx_list = list(range(1, max(tracks_info.keys())+1 ))
     sp = StateProcessor(track_idx_list, {1:12, 2:12, 4:12, 6:-12, 7:12, 8:-12})
 
-    mpr = MidiPianoRender()
-    low_layers_mpr = [MidiPianoRender(track_idx) for track_idx in track_idx_list]
+    mpr = MidiPianoRender(render_note = False)
+    low_layers_mpr = [MidiPianoRender(track_layer_idx = track_idx) for track_idx in track_idx_list]
 
     for state in mp.iter_ticks():
         shifted_state, split_state = sp.shift_and_split_state(state)
