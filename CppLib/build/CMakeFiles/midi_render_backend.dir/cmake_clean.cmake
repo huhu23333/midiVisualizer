@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o"
+  "CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o.d"
   "CMakeFiles/midi_render_backend.dir/src/CvFuncs.cpp.o"
   "CMakeFiles/midi_render_backend.dir/src/CvFuncs.cpp.o.d"
   "CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.o"

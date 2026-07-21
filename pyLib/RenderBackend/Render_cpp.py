@@ -36,6 +36,38 @@ _lib.midi_render_render_frames.argtypes = [
 ]
 _lib.midi_render_render_frames.restype = POINTER(c_uint8)
 
+# Async API prototypes
+_lib.async_render_create.argtypes = []
+_lib.async_render_create.restype = c_void_p
+
+_lib.async_render_destroy.argtypes = [c_void_p]
+_lib.async_render_destroy.restype = None
+
+_lib.async_render_submit.argtypes = [
+    c_void_p,          # async handle
+    c_void_p,          # render handle
+    c_float,           # bpm
+    POINTER(c_int),    # notes_data
+    c_int,             # notes_count
+    POINTER(c_uint8),  # low_layers_data
+    c_int,             # low_layers_count
+    c_int,             # low_layer_cols
+    c_int,             # low_layer_rows
+]
+_lib.async_render_submit.restype = c_int
+
+_lib.async_render_is_ready.argtypes = [c_void_p, c_int]
+_lib.async_render_is_ready.restype = c_int
+
+_lib.async_render_get_result.argtypes = [
+    c_void_p,          # async handle
+    c_int,             # job_id
+    POINTER(c_int),    # out_frame_count
+    POINTER(c_int),    # out_frame_cols
+    POINTER(c_int),    # out_frame_rows
+]
+_lib.async_render_get_result.restype = POINTER(c_uint8)
+
 # Re-export CvFuncs for compatibility (Python versions are still used for some utilities)
 # from CvFuncs import shift_and_fill_inplace, mix_color, extract_colors_by_indices, add_glow_effect
 
@@ -226,5 +258,128 @@ class MidiPianoRender:
         tick_dt = 60 / (bpm * 48)
         self.tick_time_count += tick_dt
         self.frame_count += out_frame_count.value
+        
+        return result
+
+
+class AsyncMidiPianoRender:
+    """
+    Async render backend that uses a persistent worker thread in C++.
+    Submitting a job returns immediately with a job_id.
+    Call get_result(job_id) (blocking until ready) to retrieve rendered frames.
+    """
+    def __init__(self, track_layer_idx=None, render_note=True):
+        # Reuse the same MidiPianoRender instance for the actual rendering
+        if track_layer_idx is not None:
+            c_track = track_layer_idx
+        else:
+            c_track = -1
+        
+        self._render_handle = _lib.midi_render_create(c_track, 1 if render_note else 0)
+        if not self._render_handle:
+            raise RuntimeError("Failed to create MidiPianoRender C++ instance")
+        
+        self._async_handle = _lib.async_render_create()
+        if not self._async_handle:
+            _lib.midi_render_destroy(self._render_handle)
+            raise RuntimeError("Failed to create AsyncRender C++ instance")
+        
+        self.render_note = render_note
+        self.track_layer_idx = track_layer_idx
+        self.white_key_height = _lib.midi_render_get_white_key_height(self._render_handle)
+        
+        # Compatibility attributes (not used for rendering, for API consistency)
+        class _NotesRenderCompat:
+            def __init__(self):
+                self.keep_for_out_pix = 50
+                self.min_update_pix = 100
+        self.nr = _NotesRenderCompat()
+        self.note_distance_dt = (self.nr.keep_for_out_pix + note_out_tmp_height - self.white_key_height) / note_speed
+        
+        # libc for free
+        self._libc = ctypes.CDLL("libc.so.6")
+        self._libc.free.argtypes = [ctypes.c_void_p]
+        self._libc.free.restype = None
+    
+    def __del__(self):
+        if hasattr(self, '_async_handle') and self._async_handle:
+            _lib.async_render_destroy(self._async_handle)
+            self._async_handle = None
+        if hasattr(self, '_render_handle') and self._render_handle:
+            _lib.midi_render_destroy(self._render_handle)
+            self._render_handle = None
+
+    def render_frames_async(self, state, low_layers=None):
+        """
+        Submit a render job. Returns immediately with a job_id.
+        This is the async counterpart to MidiPianoRender.render_frames().
+        """
+        notes = state["notes"]
+        bpm = state["bpm"]
+        
+        notes_data = _pack_notes(notes)
+        
+        low_layers_ptr = None
+        low_layers_count = 0
+        low_layer_cols = 0
+        low_layer_rows = 0
+        if low_layers is not None:
+            low_layers_count = len(low_layers)
+            if low_layers_count > 0:
+                low_layer_rows = low_layers[0].shape[0]
+                low_layer_cols = low_layers[0].shape[1]
+                low_layers_concat = np.concatenate(
+                    [np.ascontiguousarray(f).ravel() for f in low_layers]
+                )
+                low_layers_ptr = low_layers_concat.ctypes.data_as(POINTER(c_uint8))
+        
+        notes_data_ptr = notes_data.ctypes.data_as(POINTER(c_int))
+        
+        job_id = _lib.async_render_submit(
+            self._async_handle,
+            self._render_handle,
+            c_float(bpm),
+            notes_data_ptr,
+            len(notes_data),
+            low_layers_ptr,
+            low_layers_count,
+            low_layer_cols,
+            low_layer_rows
+        )
+        
+        return job_id
+
+    def is_ready(self, job_id):
+        """Check if a render job has completed."""
+        return _lib.async_render_is_ready(self._async_handle, job_id) != 0
+
+    def get_result(self, job_id):
+        """
+        Block until the render job is done, then return the rendered frames.
+        Returns the list of frame arrays (same format as render_frames()).
+        """
+        # Busy-wait until ready
+        while not self.is_ready(job_id):
+            pass
+        
+        out_frame_count = c_int()
+        out_frame_cols = c_int()
+        out_frame_rows = c_int()
+        
+        raw_ptr = _lib.async_render_get_result(
+            self._async_handle,
+            job_id,
+            byref(out_frame_count),
+            byref(out_frame_cols),
+            byref(out_frame_rows)
+        )
+        
+        if not raw_ptr:
+            return []
+        
+        result = _unpack_frames(raw_ptr, out_frame_count.value,
+                                out_frame_cols.value, out_frame_rows.value)
+        
+        self._libc.free(raw_ptr)
         
         return result

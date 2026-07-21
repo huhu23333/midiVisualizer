@@ -79,9 +79,10 @@ def main():
                 if show_window:
                     cv2.imshow("1", cv2.resize(f, (1280, 720)))
                     cv2.waitKey(1)
-            average_spf = total_time/total_frame_count
-            print(f"已渲染[{total_frame_count}]帧 平均[{average_spf:.2f}]s每帧 ([{1/average_spf:.3f}fps) "
-                  f"估计剩余[{estimate_total_frame-total_frame_count}]帧 ([{(estimate_total_frame-total_frame_count)*average_spf:.2f}]s)")
+            if total_time > 0 and total_frame_count > 0:
+                average_spf = total_time/total_frame_count
+                print(f"已渲染[{total_frame_count}]帧 平均[{average_spf:.2f}]s每帧 ([{1/average_spf:.3f}fps) "
+                      f"估计剩余[{estimate_total_frame-total_frame_count}]帧 ([{(estimate_total_frame-total_frame_count)*average_spf:.2f}]s)")
         print("渲染完成")
     except KeyboardInterrupt:
         print("提前终止渲染")

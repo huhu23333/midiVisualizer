@@ -50,6 +50,49 @@ uint8_t* midi_render_render_frames(
     int* out_frame_rows
 );
 
+// ========== Async Render API ==========
+
+// Opaque handle to AsyncRender
+typedef void* AsyncRenderHandle;
+
+// Create an AsyncRender instance (allocates a persistent worker thread)
+AsyncRenderHandle async_render_create();
+
+// Destroy an AsyncRender instance (joins worker thread)
+void async_render_destroy(AsyncRenderHandle handle);
+
+// Submit a render job. Returns immediately with a job_id.
+// The worker thread will process the job asynchronously.
+// notes_data and low_layers_data are copied internally, caller can free them.
+int async_render_submit(
+    AsyncRenderHandle handle,
+    MidiRenderHandle render,
+    float bpm,
+    const int32_t* notes_data,
+    int notes_count,
+    const uint8_t* low_layers_data,
+    int low_layers_count,
+    int low_layer_cols,
+    int low_layer_rows
+);
+
+// Check if a submitted job has finished rendering.
+// Returns 1 if ready, 0 if not ready or not found.
+int async_render_is_ready(AsyncRenderHandle handle, int job_id);
+
+// Retrieve the result of a completed job.
+// Returns pointer to raw BGR data (malloc'd, caller must free with libc's free()).
+// Sets out_frame_count, out_frame_cols, out_frame_rows.
+// Returns NULL if job not ready or not found.
+// After calling this, the job is removed from memory.
+uint8_t* async_render_get_result(
+    AsyncRenderHandle handle,
+    int job_id,
+    int* out_frame_count,
+    int* out_frame_cols,
+    int* out_frame_rows
+);
+
 #ifdef __cplusplus
 }
 #endif

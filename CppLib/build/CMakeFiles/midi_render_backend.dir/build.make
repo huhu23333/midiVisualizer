@@ -139,10 +139,24 @@ CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/MidiPianoRender.cpp -o CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.s
 
+CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o: CMakeFiles/midi_render_backend.dir/flags.make
+CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o: ../src/AsyncRender.cpp
+CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o: CMakeFiles/midi_render_backend.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o -MF CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o.d -o CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o -c /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/AsyncRender.cpp
+
+CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/AsyncRender.cpp > CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.i
+
+CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/AsyncRender.cpp -o CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.s
+
 CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o: CMakeFiles/midi_render_backend.dir/flags.make
 CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o: ../src/bindings.cpp
 CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o: CMakeFiles/midi_render_backend.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o -MF CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o.d -o CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o -c /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/bindings.cpp
 
 CMakeFiles/midi_render_backend.dir/src/bindings.cpp.i: cmake_force
@@ -160,6 +174,7 @@ midi_render_backend_OBJECTS = \
 "CMakeFiles/midi_render_backend.dir/src/NotesRender.cpp.o" \
 "CMakeFiles/midi_render_backend.dir/src/ParticleRender.cpp.o" \
 "CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.o" \
+"CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o" \
 "CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o"
 
 # External object files for target midi_render_backend
@@ -170,6 +185,7 @@ libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/src/PianoRender.cp
 libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/src/NotesRender.cpp.o
 libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/src/ParticleRender.cpp.o
 libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.o
+libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o
 libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/src/bindings.cpp.o
 libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/build.make
 libmidi_render_backend.so: /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.5.4d
@@ -227,7 +243,7 @@ libmidi_render_backend.so: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.5.4d
 libmidi_render_backend.so: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.5.4d
 libmidi_render_backend.so: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.5.4d
 libmidi_render_backend.so: CMakeFiles/midi_render_backend.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX shared library libmidi_render_backend.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX shared library libmidi_render_backend.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/midi_render_backend.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

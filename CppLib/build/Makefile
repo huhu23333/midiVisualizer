@@ -129,6 +129,30 @@ midi_render_backend/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/midi_render_backend.dir/build.make CMakeFiles/midi_render_backend.dir/build
 .PHONY : midi_render_backend/fast
 
+src/AsyncRender.o: src/AsyncRender.cpp.o
+.PHONY : src/AsyncRender.o
+
+# target to build an object file
+src/AsyncRender.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/midi_render_backend.dir/build.make CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o
+.PHONY : src/AsyncRender.cpp.o
+
+src/AsyncRender.i: src/AsyncRender.cpp.i
+.PHONY : src/AsyncRender.i
+
+# target to preprocess a source file
+src/AsyncRender.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/midi_render_backend.dir/build.make CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.i
+.PHONY : src/AsyncRender.cpp.i
+
+src/AsyncRender.s: src/AsyncRender.cpp.s
+.PHONY : src/AsyncRender.s
+
+# target to generate assembly for a file
+src/AsyncRender.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/midi_render_backend.dir/build.make CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.s
+.PHONY : src/AsyncRender.cpp.s
+
 src/CvFuncs.o: src/CvFuncs.cpp.o
 .PHONY : src/CvFuncs.o
 
@@ -282,6 +306,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... midi_render_backend"
+	@echo "... src/AsyncRender.o"
+	@echo "... src/AsyncRender.i"
+	@echo "... src/AsyncRender.s"
 	@echo "... src/CvFuncs.o"
 	@echo "... src/CvFuncs.i"
 	@echo "... src/CvFuncs.s"

@@ -81,12 +81,12 @@ clean: CMakeFiles/midi_render_backend.dir/clean
 CMakeFiles/midi_render_backend.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/midi_render_backend.dir/build.make CMakeFiles/midi_render_backend.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/midi_render_backend.dir/build.make CMakeFiles/midi_render_backend.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target midi_render_backend"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target midi_render_backend"
 .PHONY : CMakeFiles/midi_render_backend.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/midi_render_backend.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/midi_render_backend.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/build/CMakeFiles 0
 .PHONY : CMakeFiles/midi_render_backend.dir/rule

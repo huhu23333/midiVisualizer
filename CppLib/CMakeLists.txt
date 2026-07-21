@@ -13,6 +13,7 @@ set(SOURCES
     src/NotesRender.cpp
     src/ParticleRender.cpp
     src/MidiPianoRender.cpp
+    src/AsyncRender.cpp
     src/bindings.cpp
 )
 

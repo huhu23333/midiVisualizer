@@ -1,5 +1,6 @@
 #include "render_backend.h"
 #include "MidiPianoRender.h"
+#include "AsyncRender.h"
 #include <cstring>
 #include <cstdlib>
 #include <random>
@@ -133,6 +134,50 @@ uint8_t* midi_render_render_frames(
     }
 
     return output;
+}
+
+// ========== Async Render API implementation ==========
+
+AsyncRenderHandle async_render_create() {
+    return new AsyncRender();
+}
+
+void async_render_destroy(AsyncRenderHandle handle) {
+    delete static_cast<AsyncRender*>(handle);
+}
+
+int async_render_submit(
+    AsyncRenderHandle handle,
+    MidiRenderHandle render,
+    float bpm,
+    const int32_t* notes_data,
+    int notes_count,
+    const uint8_t* low_layers_data,
+    int low_layers_count,
+    int low_layer_cols,
+    int low_layer_rows)
+{
+    AsyncRender* ar = static_cast<AsyncRender*>(handle);
+    MidiPianoRender* mpr = static_cast<MidiPianoRender*>(render);
+    return ar->submit_render(mpr, bpm, notes_data, notes_count,
+                             low_layers_data, low_layers_count,
+                             low_layer_cols, low_layer_rows);
+}
+
+int async_render_is_ready(AsyncRenderHandle handle, int job_id) {
+    AsyncRender* ar = static_cast<AsyncRender*>(handle);
+    return ar->is_ready(job_id) ? 1 : 0;
+}
+
+uint8_t* async_render_get_result(
+    AsyncRenderHandle handle,
+    int job_id,
+    int* out_frame_count,
+    int* out_frame_cols,
+    int* out_frame_rows)
+{
+    AsyncRender* ar = static_cast<AsyncRender*>(handle);
+    return ar->get_result(job_id, out_frame_count, out_frame_cols, out_frame_rows);
 }
 
 } // extern "C"

@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/AsyncRender.cpp" "CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o" "gcc" "CMakeFiles/midi_render_backend.dir/src/AsyncRender.cpp.o.d"
   "/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/CvFuncs.cpp" "CMakeFiles/midi_render_backend.dir/src/CvFuncs.cpp.o" "gcc" "CMakeFiles/midi_render_backend.dir/src/CvFuncs.cpp.o.d"
   "/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/MidiPianoRender.cpp" "CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.o" "gcc" "CMakeFiles/midi_render_backend.dir/src/MidiPianoRender.cpp.o.d"
   "/media/huhu233/Data2/Code2/pythonProjects/midiVisualizer/CppLib/src/NotesRender.cpp" "CMakeFiles/midi_render_backend.dir/src/NotesRender.cpp.o" "gcc" "CMakeFiles/midi_render_backend.dir/src/NotesRender.cpp.o.d"
