@@ -31,14 +31,14 @@ def main():
     mpr = MidiPianoRender()
     tracks_info = mp.get_tracks_info()
     print(tracks_info)
-    sp = StateProcessor(list(range(1, max(tracks_info.keys())+1 )), {})
+    sp = StateProcessor(list(range(1, max(tracks_info.keys())+1 )), {1:12, 2:12, 4:12, 6:-12, 7:12, 8:-12})
     for state in mp.iter_ticks():
         shifted_state, split_state = sp.shift_and_split_state(state)
         frames = mpr.render_frames(shifted_state)
         for f in frames:
             cv2.imshow("1", cv2.resize(f, (1280, 720)))
             cv2.waitKey(1)
-            time.sleep(0.02)
+            # time.sleep(0.02)
 
 
 

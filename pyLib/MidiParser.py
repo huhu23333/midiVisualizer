@@ -148,22 +148,48 @@ class StateProcessor:
     def __init__(self, track_idx_list, shift_rule = {}):
         self.track_idx_list = track_idx_list
         self.shift_rule = shift_rule
+        self.history_min_n = None
+        self.history_max_n = None
 
     def shift_and_split_state(self, state):
         notes = state['notes']
         bpm = state['bpm']
+
+        new_min_n, new_max_n = None, None
 
         new_notes = {n : {'on': [], 'playing': [], 'off': []} for n in notes.keys()}
         for n in notes.keys():
             for event_type in ['on', 'playing', 'off']:
                 tracks = notes[n][event_type]
                 for track_idx in tracks:
+                    now_n = n
                     if track_idx in self.shift_rule:
                         shifted_n = n + self.shift_rule[track_idx]
                         if shifted_n in new_notes:
                             new_notes[shifted_n][event_type].append(track_idx)
+                        now_n = shifted_n
                     else:
                         new_notes[n][event_type].append(track_idx)
+
+                    if new_min_n is None:
+                        new_min_n = now_n
+                    else:
+                        new_min_n = min(new_min_n, now_n)
+                    if new_max_n is None:
+                        new_max_n = now_n
+                    else:
+                        new_max_n = max(new_max_n, now_n)
+                    if self.history_min_n is None:
+                        self.history_min_n = now_n
+                    else:
+                        self.history_min_n = min(self.history_min_n, now_n)
+                    if self.history_max_n is None:
+                        self.history_max_n = now_n
+                    else:
+                        self.history_max_n = max(self.history_max_n, now_n)
+
+        
+        # print(new_min_n, new_max_n, self.history_min_n, self.history_max_n)
             
         for n in new_notes.keys():
             for event_type in ['on', 'playing', 'off']:
