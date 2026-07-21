@@ -55,18 +55,37 @@ def main():
     mpr = MidiPianoRender(render_note = False)
     low_layers_mpr = [MidiPianoRender(track_layer_idx = track_idx) for track_idx in track_idx_list]
 
-    for state in mp.iter_ticks():
-        shifted_state, split_state = sp.shift_and_split_state(state)
-        low_layers = low_layers_mpr[-1].render_frames(split_state[track_idx_list[-1]])
-        low_layers = shift_frames(low_layers)
-        for track_idx in reversed(range(len(track_idx_list)-1)):
-            low_layers = low_layers_mpr[track_idx].render_frames(split_state[track_idx_list[track_idx]], low_layers)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # MP4格式常用编解码器
+    output_path = os.path.join(base_path, "output.mp4")
+    out = cv2.VideoWriter(output_path, fourcc, 60, (1920, 1080))
+    show_window = True
+
+    t_start = time.time()
+    total_frame_count = 0
+    estimate_total_frame = int((4*60+50)*60)
+    try:
+        for state in mp.iter_ticks():
+            shifted_state, split_state = sp.shift_and_split_state(state)
+            low_layers = low_layers_mpr[-1].render_frames(split_state[track_idx_list[-1]])
             low_layers = shift_frames(low_layers)
-        frames = mpr.render_frames(shifted_state, low_layers)
-        for f in frames:
-            cv2.imshow("1", cv2.resize(f, (1280, 720)))
-            cv2.waitKey(1)
-            # time.sleep(0.02)
+            for track_idx in reversed(range(len(track_idx_list)-1)):
+                low_layers = low_layers_mpr[track_idx].render_frames(split_state[track_idx_list[track_idx]], low_layers)
+                low_layers = shift_frames(low_layers)
+            frames = mpr.render_frames(shifted_state, low_layers)
+            for f in frames:
+                total_frame_count += 1
+                total_time = time.time() - t_start
+                out.write(f)
+                if show_window:
+                    cv2.imshow("1", cv2.resize(f, (1280, 720)))
+                    cv2.waitKey(1)
+            average_spf = total_time/total_frame_count
+            print(f"已渲染[{total_frame_count}]帧 平均[{average_spf:.2f}]s每帧 ([{1/average_spf:.3f}fps) "
+                  f"估计剩余[{estimate_total_frame-total_frame_count}]帧 ([{(estimate_total_frame-total_frame_count)*average_spf:.2f}]s)")
+        print("渲染完成")
+    except KeyboardInterrupt:
+        print("提前终止渲染")
+    out.release()
 
 
 
