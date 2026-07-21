@@ -25,7 +25,7 @@ class NotesRender:
         self.last_on_border_pix = [0 for _ in range(128)]
         self.off_region_pix = max(self.radius, self.border_thickness) + self.gap
 
-    def update_in_temp(self, in_tmp_img : np.ndarray, step_pix : int, notes : dict[int, object], color_map):
+    def update_in_temp(self, in_tmp_img : np.ndarray, in_tmp_img_mask : np.ndarray, step_pix : int, notes : dict[int, object], color_map):
         end_draw_row = in_tmp_img.shape[0] - self.keep_for_out_pix
         start_draw_row = end_draw_row - self.min_update_pix
 
@@ -44,6 +44,7 @@ class NotesRender:
 
             if off_set:
                 off_tmp = np.zeros((in_tmp_img.shape[0], x_right - x_left, 3), np.uint8)
+                off_tmp_mask = np.zeros((in_tmp_img_mask.shape[0], x_right - x_left), np.uint8)
                 this_off_region_pix = self.off_region_pix
                 this_gap = self.gap
                 if self.last_on_border_pix[note] - max(self.radius, self.border_thickness) >= self.off_region_pix:
@@ -60,6 +61,8 @@ class NotesRender:
                     mixed_color = border_color(mix_color(color_list))
                     draw_rounded_rect(off_tmp[ : end_draw_row+this_off_region_pix-1], (self.shrink, None), (x_right-x_left-self.shrink, None), 
                                             self.radius, self.border_thickness, mixed_color, color_list)
+                    draw_rounded_rect(off_tmp_mask[ : end_draw_row+this_off_region_pix-1], (self.shrink, None), (x_right-x_left-self.shrink, None), 
+                                            self.radius, self.border_thickness, 255, [255])
                 else:
                     pass
                     # cv2.rectangle(off_tmp, (0, 0), (x_right-x_left, end_draw_row+this_off_region_pix-1), (0, 0, 0), -1)
@@ -68,8 +71,11 @@ class NotesRender:
                 mixed_color = border_color(mix_color(color_list))
                 draw_rounded_rect(off_tmp, (self.shrink, end_draw_row+this_gap), (x_right-x_left-self.shrink, None), 
                                           self.radius, self.border_thickness, mixed_color, color_list)
+                draw_rounded_rect(off_tmp_mask, (self.shrink, end_draw_row+this_gap), (x_right-x_left-self.shrink, None), 
+                                          self.radius, self.border_thickness, 255, [255])
                 
                 in_tmp_img[ : end_draw_row+this_off_region_pix, x_left : x_right] = off_tmp[ : end_draw_row+this_off_region_pix]
+                in_tmp_img_mask[ : end_draw_row+this_off_region_pix, x_left : x_right] = off_tmp_mask[ : end_draw_row+this_off_region_pix]
                 
                 self.last_update_pix[note] = 0
             if on_set:
@@ -77,6 +83,8 @@ class NotesRender:
                 mixed_color = border_color(mix_color(color_list))
                 draw_rounded_rect(in_tmp_img, (x_left+self.shrink, None), (x_right-self.shrink, end_draw_row), 
                                           self.radius, self.border_thickness, mixed_color, color_list)
+                draw_rounded_rect(in_tmp_img_mask, (x_left+self.shrink, None), (x_right-self.shrink, end_draw_row), 
+                                          self.radius, self.border_thickness, 255, [255])
                 self.last_on_border_pix[note] = 0
                 self.last_update_pix[note] = 0
                 
@@ -86,4 +94,6 @@ class NotesRender:
                     mixed_color = border_color(mix_color(color_list))
                     draw_rounded_rect(in_tmp_img[ : end_draw_row], (x_left+self.shrink, None), (x_right-self.shrink, None), 
                                             self.radius, self.border_thickness, mixed_color, color_list)
+                    draw_rounded_rect(in_tmp_img_mask[ : end_draw_row], (x_left+self.shrink, None), (x_right-self.shrink, None), 
+                                            self.radius, self.border_thickness, 255, [255])
                 self.last_update_pix[note] = 0

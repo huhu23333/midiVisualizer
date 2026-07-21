@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class PianoRender:
-    def __init__(self, screen_size, max_note):
+    def __init__(self, screen_size, max_note, light_bar_color = None):
         self.screen_size = screen_size
         self.max_note = max_note
 
@@ -12,7 +12,7 @@ class PianoRender:
         self.line_color_piano = (0,0,0)
         self.piano_white_note_color = (240, 240, 240)
         self.piano_black_note_color = (20,20,20)
-        self.light_bar_color = (200, 240, 255)
+        self.light_bar_color = light_bar_color if light_bar_color else (200, 240, 255)
 
 
         self.note_to_x_ratio_total = self.screen_size[0]/self.max_note
