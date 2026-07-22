@@ -223,7 +223,7 @@ class AsyncLayer:
 # ======================================================================
 
 def main():
-    mp = MidiParser(midi_path("Asterlore.mid"), int(10 / 0.02))
+    mp = MidiParser(midi_path("Asterlore.mid"), int(10 / 0.02), 4*60+15)
     tracks_info = mp.get_tracks_info()
     print(tracks_info)
     track_idx_list = list(range(1, max(tracks_info.keys()) + 1))
@@ -277,13 +277,13 @@ def main():
 
     # ---- Video output setup ----
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    output_path = os.path.join(base_path, "output.mp4")
+    output_path = os.path.join(base_path, "output2.mp4")
     out = cv2.VideoWriter(output_path, fourcc, 60, (1920, 1080))
 
     t_start = time.time()
     total_frame_count = 0
     last_printed_frame_count = -1
-    estimate_total_frame = int((4 * 60 + 50) * 60)
+    estimate_total_frame = int((4 * 60 + 50 - (4*60+15)) * 60)
 
     print("开始异步渲染...")
     try:

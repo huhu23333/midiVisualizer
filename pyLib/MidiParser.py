@@ -2,13 +2,15 @@ import mido
 from typing import Dict, List, Set, Iterator, Tuple
 
 class MidiParser:
-    def __init__(self, midi_path: str, extra_ticks = 0):
+    def __init__(self, midi_path: str, extra_ticks = 0, skip_time = None):
         """
         解析 MIDI 文件，提取音符事件和 tempo 事件。
         """
         self.mid = mido.MidiFile(midi_path)
         self.track_events = []   # 每个元素为该轨道的事件列表，事件为 (abs_tick, message)
         self.max_tick = 0
+        self.extra_ticks = extra_ticks
+        self.skip_time = skip_time
 
         # 收集所有 tempo 事件（绝对 tick, BPM）
         self.tempo_changes = []  # (abs_tick, bpm)
@@ -66,6 +68,7 @@ class MidiParser:
         tempo_idx = 0
         current_bpm = self.tempo_changes[0][1] if self.tempo_changes else 120.0
 
+        skipped_time_count = 0.0
         while current_tick <= self.max_tick:
             # 更新 BPM（处理所有 tick ≤ current_tick 的 tempo 事件）
             while tempo_idx < len(self.tempo_changes) and self.tempo_changes[tempo_idx][0] <= current_tick:
@@ -129,13 +132,29 @@ class MidiParser:
                     'off': sorted(close_dict.get(note, []))
                 }
 
+            current_tick += 1
+
+            if self.skip_time is not None:
+                tick_dt = 60 / (current_bpm * 48)
+                skipped_time_count += tick_dt
+                if skipped_time_count < self.skip_time:
+                    continue
+
             # 返回包含 notes 和 bpm 的字典
             yield {
                 'notes': notes_result,
                 'bpm': current_bpm
             }
 
-            current_tick += 1
+
+        for _ in range(self.extra_ticks):
+            all_notes = range(128)
+            notes_result = {n:{'on':[],'playing':[],'off':[]} for n in all_notes}
+            yield {
+                'notes': notes_result,
+                'bpm': current_bpm
+            }
+
 
     def get_tracks_info(self) -> Dict[int, str]:
         """
